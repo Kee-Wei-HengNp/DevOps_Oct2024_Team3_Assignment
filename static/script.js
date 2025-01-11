@@ -9,6 +9,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const loginForm = document.getElementById('login-form');
     const errorMessage = document.getElementById('error-message');
     
+    // Handle login form submission
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
     
@@ -28,7 +29,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
                 // Redirect to the appropriate page
                 window.location.href = result.redirect_url;
             } else {
-                // Display error message only if it exists
+                // Display error message
                 errorMessage.textContent = result.message || 'Invalid login credentials.';
             }
         } catch (error) {
