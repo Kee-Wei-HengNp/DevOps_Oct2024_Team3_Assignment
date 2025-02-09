@@ -71,11 +71,12 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertFalse(data['success'])
         self.assertIn("Username or password is missing!", data['message'])
 
-    def test_student_page(self):
-        """Test if the student page loads correctly."""
-        response = self.client.get('/student')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Welcome, Student!", response.data)
+def test_student_page(self):
+    """Test if the student page loads correctly."""
+    response = self.client.get('/student')
+    self.assertEqual(response.status_code, 200)
+    self.assertIn(b'<span id="username">', response.data)  # Ensures username is present
+
 
     def test_admin_page(self):
         """Test if the admin page loads correctly."""
