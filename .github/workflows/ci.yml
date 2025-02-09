@@ -1,0 +1,35 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches:
+      - main  # Run tests when pushing to main branch
+      - dev   # (Optional) Run on development branch
+  pull_request:
+    branches:
+      - main  # Run tests for pull requests to main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"  # Ensure this matches your local version
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run unit tests
+        run: |
+          source venv/bin/activate
+          python -m unittest discover tests
