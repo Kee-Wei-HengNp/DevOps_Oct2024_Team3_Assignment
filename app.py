@@ -63,13 +63,11 @@ def redeemable_items():
 def redeemed_items():
     return render_template('redeemed_items.html')
 
-
-
-
-
 @app.route('/recover-password')
 def recover_password():
     return render_template('recover_password.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
