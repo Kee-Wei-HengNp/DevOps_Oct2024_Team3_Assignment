@@ -11,19 +11,24 @@ def db_connection():
     return conn
 
 # Function to get user from database
+
+
 def get_user_from_db(username):
     conn = db_connection()
     cursor = conn.cursor()
 
-    cursor.execute('SELECT username, password, role FROM users WHERE username = ?', (username,))
+    cursor.execute(
+        'SELECT username, password, role FROM users WHERE username = ?', (username,))
     user = cursor.fetchone()
 
     conn.close()
     return user
 
+
 @app.route('/')
 def home():
     return render_template('login.html')
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -42,9 +47,11 @@ def login():
     else:
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
 
+
 @app.route('/admin')
 def admin_page():
     return render_template('admin.html')
+
 
 @app.route('/student')
 def student_page():
@@ -55,20 +62,21 @@ def student_page():
     }
     return render_template('student.html', username=user_data["username"], points=user_data["points"])
 
+
 @app.route('/redeemable-items')
 def redeemable_items():
     return render_template('redeemable_items.html')
+
 
 @app.route('/redeemed-items')
 def redeemed_items():
     return render_template('redeemed_items.html')
 
 
-
-
 @app.route('/recover-password')
 def recover_password():
     return render_template('recover_password.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

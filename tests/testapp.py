@@ -1,6 +1,7 @@
 import unittest
 import json
-from app import app, get_user_from_db
+from app import app, get_user_from_db, students, redeemable_items
+
 
 class FlaskAppTestCase(unittest.TestCase):
 
@@ -18,7 +19,8 @@ class FlaskAppTestCase(unittest.TestCase):
 
     def test_get_user_from_db(self):
         """Test database user retrieval function."""
-        user = get_user_from_db('admin_user')  # Ensure 'admin_user' exists in the database
+        user = get_user_from_db(
+            'admin_user')  # Ensure 'admin_user' exists in the database
         self.assertIsNotNone(user)
         self.assertEqual(user[0], 'admin_user')
         self.assertEqual(user[2], 'admin')  # Role should be 'admin'
@@ -76,8 +78,8 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.client.get('/student')
         self.assertEqual(response.status_code, 200)  # Page should load
         self.assertIn(b"Welcome,", response.data)  # Partial match for username
-        self.assertIn(b"Total Points:", response.data)  # Ensure points are displayed
-
+        # Ensure points are displayed
+        self.assertIn(b"Total Points:", response.data)
 
     def test_admin_page(self):
         """Test if the admin page loads correctly."""
@@ -89,15 +91,59 @@ class FlaskAppTestCase(unittest.TestCase):
         """Test if the redeemable items page loads correctly."""
         response = self.client.get('/redeemable-items')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Redeemable Items", response.data)  # Check page title
-        self.assertIn(b"This page will display items students can redeem.", response.data)  # Placeholder text
+        self.assertIn(b"Redeemable Items", response.data)  # Page title check
+
+    ### ✅ TEST SUCCESSFUL REDEMPTION ###
+    def test_redeem_item_success(self):
+        """Test successful item redemption when enough points are available."""
+        students["test_student"]["points"] = 1000  # Ensure enough points
+
+        response = self.client.post('/redeem-item', data=json.dumps({
+            "item": "AAA"  # AAA costs 200 points
+        }), content_type='application/json')
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(data["remaining_points"], 800)  # 1000 - 200 = 800
+
+    ### ❌ TEST REDEMPTION FAILURE DUE TO INSUFFICIENT POINTS ###
+    def test_redeem_item_insufficient_points(self):
+        """Test redemption failure when user does not have enough points."""
+        students["test_student"]["points"] = 100  # Not enough for any item
+
+        response = self.client.post('/redeem-item', data=json.dumps({
+            "item": "BBB"  # BBB costs 300 points
+        }), content_type='application/json')
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data["success"])
+        self.assertIn("Not enough points", data["message"])
+
+    ### ❌ TEST REDEMPTION FAILURE DUE TO INVALID ITEM ###
+    def test_redeem_item_invalid(self):
+        """Test redemption failure when item does not exist."""
+        students["test_student"]["points"] = 500  # Ensure some points exist
+
+        response = self.client.post('/redeem-item', data=json.dumps({
+            "item": "ZZZ"  # This item does not exist
+        }), content_type='application/json')
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(data["success"])
+        self.assertIn("Item not found", data["message"])
 
     def test_redeemed_items_page(self):
         """Test if the redeemed items page loads correctly."""
         response = self.client.get('/redeemed-items')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Redeemed Items", response.data)  # Check page title
-        self.assertIn(b"This page will display items that the student has already redeemed.", response.data)  # Placeholder text
+        # Placeholder text
+        self.assertIn(
+            b"This page will display items that the student has already redeemed.", response.data)
+
 
 if __name__ == '__main__':
     unittest.main()
