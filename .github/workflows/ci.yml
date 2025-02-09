@@ -1,13 +1,12 @@
-name: Run Unit Tests
+name: Run Unit Tests & Notify Discord
 
 on:
   push:
     branches:
-      - main  # Run tests when pushing to main branch
-      - dev   # (Optional) Run on development branch
+      - main
   pull_request:
     branches:
-      - main  # Run tests for pull requests to main
+      - main
 
 jobs:
   test:
@@ -20,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"  # Ensure this matches your local version
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |
@@ -30,6 +29,29 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run unit tests
+        id: test
+        continue-on-error: false  # Stop if tests fail
         run: |
           source venv/bin/activate
           python -m unittest discover tests
+
+      - name: Send Discord Notification
+        if: always()  # Always run this step (pass or fail)
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Tests Passed!"
+            COLOR=3066993  # Green
+          else
+            STATUS="❌ Tests Failed!"
+            COLOR=15158332  # Red
+          fi
+
+          curl -H "Content-Type: application/json" -X POST -d "{
+            \"embeds\": [{
+              \"title\": \"$STATUS\",
+              \"description\": \"Unit tests for the latest commit have completed.\",
+              \"color\": $COLOR
+            }]
+          }" $DISCORD_WEBHOOK_URL
