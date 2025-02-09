@@ -74,14 +74,30 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_student_page(self):
         """Test if the student page loads correctly."""
         response = self.client.get('/student')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"Welcome, Student!", response.data)
+        self.assertEqual(response.status_code, 200)  # Page should load
+        self.assertIn(b"Welcome,", response.data)  # Partial match for username
+        self.assertIn(b"Total Points:", response.data)  # Ensure points are displayed
+
 
     def test_admin_page(self):
         """Test if the admin page loads correctly."""
         response = self.client.get('/admin')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Welcome to the Admin Page!", response.data)
+
+    def test_redeemable_items_page(self):
+        """Test if the redeemable items page loads correctly."""
+        response = self.client.get('/redeemable-items')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Redeemable Items", response.data)  # Check page title
+        self.assertIn(b"This page will display items students can redeem.", response.data)  # Placeholder text
+
+    def test_redeemed_items_page(self):
+        """Test if the redeemed items page loads correctly."""
+        response = self.client.get('/redeemed-items')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Redeemed Items", response.data)  # Check page title
+        self.assertIn(b"This page will display items that the student has already redeemed.", response.data)  # Placeholder text
 
 if __name__ == '__main__':
     unittest.main()

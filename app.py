@@ -1,7 +1,9 @@
 import sqlite3
+import random
 from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
+
 
 # Helper function to connect to the database
 def db_connection():
@@ -46,7 +48,23 @@ def admin_page():
 
 @app.route('/student')
 def student_page():
-    return render_template('student.html')
+    # Dummy user data (will be replaced with real session-based data later)
+    user_data = {
+        "username": "test_student",
+        "points": random.randint(0, 9999)  # Random value for now
+    }
+    return render_template('student.html', username=user_data["username"], points=user_data["points"])
+
+@app.route('/redeemable-items')
+def redeemable_items():
+    return render_template('redeemable_items.html')
+
+@app.route('/redeemed-items')
+def redeemed_items():
+    return render_template('redeemed_items.html')
+
+
+
 
 @app.route('/recover-password')
 def recover_password():
