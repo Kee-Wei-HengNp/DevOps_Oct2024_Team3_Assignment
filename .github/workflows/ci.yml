@@ -39,6 +39,9 @@ jobs:
         if: always()  # Always run this step (pass or fail)
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          GITHUB_ACTOR: ${{ github.actor }}  # Extract pusher's GitHub username
+          GITHUB_COMMIT: ${{ github.sha }}  # Get commit SHA
+          GITHUB_REPO: ${{ github.repository }}  # Get repo name
         run: |
           if [ "${{ job.status }}" == "success" ]; then
             STATUS="✅ Tests Passed!"
@@ -52,6 +55,11 @@ jobs:
             \"embeds\": [{
               \"title\": \"$STATUS\",
               \"description\": \"Unit tests for the latest commit have completed.\",
-              \"color\": $COLOR
+              \"color\": $COLOR,
+              \"fields\": [
+                {\"name\": \"Pusher\", \"value\": \"${GITHUB_ACTOR}\", \"inline\": true},
+                {\"name\": \"Repository\", \"value\": \"${GITHUB_REPO}\", \"inline\": true},
+                {\"name\": \"Commit\", \"value\": \"[${GITHUB_COMMIT:0:7}](https://github.com/${GITHUB_REPO}/commit/${GITHUB_COMMIT})\", \"inline\": true}
+              ]
             }]
           }" $DISCORD_WEBHOOK_URL
