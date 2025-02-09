@@ -55,9 +55,23 @@ def student_page():
     }
     return render_template('student.html', username=user_data["username"], points=user_data["points"])
 
+# Dummy student data (for now, this will be replaced with actual user sessions later)
+students = {
+    "test_student": {"points": random.randint(500, 9999)}
+}
+
+# Dummy redeemable items (fixed list for now)
+redeemable_items = [
+    {"name": "AAA", "cost": 200},
+    {"name": "BBB", "cost": 300},
+    {"name": "CCC", "cost": 400}
+]
+
 @app.route('/redeemable-items')
-def redeemable_items():
-    return render_template('redeemable_items.html')
+def redeemable_items_page():
+    """Display available redeemable items."""
+    user = students["test_student"]  # Simulated logged-in student
+    return render_template('redeemable_items.html', items=redeemable_items, points=user["points"])
 
 @app.route('/redeemed-items')
 def redeemed_items():
@@ -66,6 +80,29 @@ def redeemed_items():
 @app.route('/recover-password')
 def recover_password():
     return render_template('recover_password.html')
+
+
+@app.route('/redeem-item', methods=['POST'])
+def redeem_item():
+    """Handle item redemption."""
+    data = request.json
+    item_name = data.get("item")
+
+    user = students["test_student"]  # Simulated logged-in student
+    user_points = user["points"]
+
+    # Find the item
+    item = next((i for i in redeemable_items if i["name"] == item_name), None)
+
+    if not item:
+        return jsonify({"success": False, "message": "Item not found!"}), 404
+
+    if user_points < item["cost"]:
+        return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
+
+    # Deduct points and confirm redemption
+    user["points"] -= item["cost"]
+    return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": user["points"]})
 
 if __name__ == '__main__':
     app.run(debug=True)
