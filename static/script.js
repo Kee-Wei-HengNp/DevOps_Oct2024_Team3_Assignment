@@ -75,6 +75,52 @@ document.getElementById('login-form').addEventListener('submit', async function 
     }
 });
 
+function updateStudent(studentId, button) {
+    let row = document.getElementById("student-" + studentId);
+    let newUsername = row.querySelector(".edit-username").innerText.trim();
+
+    if (newUsername === "") {
+        alert("Username cannot be empty!");
+        return;
+    }
+
+    fetch('/update-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: studentId, username: newUsername })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Student updated successfully!");
+        } else {
+            alert("Error updating student: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+function deleteStudent(studentId) {
+    if (!confirm("Are you sure you want to delete this student?")) {
+        return;
+    }
+
+    fetch('/delete-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: studentId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Student deleted successfully!");
+            document.getElementById("student-" + studentId).remove(); // Remove row from table
+        } else {
+            alert("Error deleting student: " + data.message);
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
 async function redeemItem(itemName) {
     const response = await fetch('/redeem-item', {
         method: 'POST',
