@@ -2,6 +2,7 @@ import unittest
 import json
 from app import app, get_user_from_db, students, redeemable_items
 
+
 class FlaskAppTestCase(unittest.TestCase):
 
     @classmethod
@@ -18,7 +19,8 @@ class FlaskAppTestCase(unittest.TestCase):
 
     def test_get_user_from_db(self):
         """Test database user retrieval function."""
-        user = get_user_from_db('admin_user')  # Ensure 'admin_user' exists in the database
+        user = get_user_from_db(
+            'admin_user')  # Ensure 'admin_user' exists in the database
         self.assertIsNotNone(user)
         self.assertEqual(user[0], 'admin_user')
         self.assertEqual(user[2], 'admin')  # Role should be 'admin'
@@ -76,8 +78,8 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.client.get('/student')
         self.assertEqual(response.status_code, 200)  # Page should load
         self.assertIn(b"Welcome,", response.data)  # Partial match for username
-        self.assertIn(b"Total Points:", response.data)  # Ensure points are displayed
-
+        # Ensure points are displayed
+        self.assertIn(b"Total Points:", response.data)
 
     def test_admin_page(self):
         """Test if the admin page loads correctly."""
@@ -138,7 +140,10 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.client.get('/redeemed-items')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Redeemed Items", response.data)  # Check page title
-        self.assertIn(b"This page will display items that the student has already redeemed.", response.data)  # Placeholder text
+        # Placeholder text
+        self.assertIn(
+            b"This page will display items that the student has already redeemed.", response.data)
+
 
 if __name__ == '__main__':
     unittest.main()
