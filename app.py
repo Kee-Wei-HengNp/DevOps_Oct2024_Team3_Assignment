@@ -94,7 +94,7 @@ def redeemed_items():
 
 @app.route('/recover-password')
 def recover_password():
-    return render_template('recover_password.html')
+    return render_template('recovery_page.html')
 
 @app.route('/logout')
 def logout():
