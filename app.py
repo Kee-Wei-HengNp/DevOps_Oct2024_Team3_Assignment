@@ -71,6 +71,13 @@ def redeemable_items():
 def create_account():
     return render_template('create_account.html')
 
+@app.route('/modify-account')
+def modify_account():
+    return render_template('modify_account.html')
+
+@app.route('/delete-account')
+def delete_account():
+    return render_template('delete_account.html')
 
 @app.route('/redeemed-items')
 def redeemed_items():
