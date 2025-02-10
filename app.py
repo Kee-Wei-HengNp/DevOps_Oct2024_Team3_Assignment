@@ -1,8 +1,10 @@
 import sqlite3
 import random
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, render_template, redirect, url_for, session
 
 app = Flask(__name__)
+
+app.secret_key = "supersecretkey"  # Required for session management
 
 
 # Helper function to connect to the database
@@ -50,11 +52,15 @@ def login():
 
 @app.route('/admin')
 def admin_page():
+    if "username" not in session or session.get("role") != "admin":
+        return redirect(url_for("home"))  # Redirect to login page if unauthorized
     return render_template('admin.html')
 
 
 @app.route('/student')
 def student_page():
+    if "username" not in session or session.get("role") != "student":
+        return redirect(url_for("home"))  # Redirect to login page if unauthorized
     # Dummy user data (will be replaced with real session-based data later)
     user_data = {
         "username": "test_student",
@@ -81,6 +87,7 @@ def redeemable_items_page():
     return render_template('redeemable_items.html', items=redeemable_items, points=user["points"])
 
 
+
 @app.route('/redeemed-items')
 def redeemed_items():
     return render_template('redeemed_items.html')
@@ -88,7 +95,8 @@ def redeemed_items():
 
 @app.route('/recover-password')
 def recover_password():
-    return render_template('recover_password.html')
+    return render_template('recovery_page.html')
+
 
 
 @app.route('/redeem-item', methods=['POST'])

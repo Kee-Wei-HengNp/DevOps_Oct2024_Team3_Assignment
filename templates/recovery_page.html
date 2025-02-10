@@ -3,9 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Recovery Page</title>
   </head>
   <body>
-    <h1>Recover Password Page!</h1>
+    <div class="recover-password-container">
+      <h1>Recover Password</h1>
+      <form id="recover-password">
+        <input type="text" id="username" placeholder="Username" required autocomplete="off">
+        <input type="password" id="password" placeholder="New Password" required autocomplete="off">            
+        <button type="submit">Reset</button>
+      </form>
+      <p id="new-password"></p>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
