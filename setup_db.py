@@ -21,9 +21,11 @@ def initialize_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
-            role TEXT NOT NULL
+            role TEXT NOT NULL,
+            points INTEGER DEFAULT 0
         )
     ''')
+    
 
     # Commit changes and close connection
     conn.commit()

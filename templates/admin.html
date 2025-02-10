@@ -1,52 +1,210 @@
+<style>
+    /* ✅ General Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ✅ Centered Admin Panel */
+    .container {
+        max-width: 900px;
+        /* Widen layout */
+        margin: 50px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ✅ Headings */
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    h2,
+    h3 {
+        color: #555;
+        margin-bottom: 15px;
+    }
+
+    /* ✅ Form Styling */
+    .form-container,
+    .csv-container,
+    .search-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    /* ✅ Student Table */
+    .table-container {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 10px;
+        background: white;
+        padding: 10px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* ✅ Action Buttons */
+    .update-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .update-btn:hover {
+        background-color: #218838;
+    }
+
+    .delete-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .delete-btn:hover {
+        background-color: #c82333;
+    }
+
+    /* ✅ Logout Button */
+    .logout-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .logout-button {
+        background-color: #ff4b5c;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .logout-button:hover {
+        background-color: #c82333;
+    }
+</style>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
+<div class="container">
+    <h1>Admin Dashboard</h1>
+    <h2>Manage Students</h2>
 
-<body>
-    <div class="container">
-        <h1>Admin Dashboard</h1>
-        <h2>Manage Students</h2>
-
-        <!-- ✅ Add Student Form -->
-        <div class="form-container">
-            <input type="text" id="new-username" placeholder="New Student Username" required>
-            <input type="password" id="new-password" placeholder="Password" required>
-            <button onclick="addStudent()">Add Student</button>
-            <p id="add-student-message"></p>
-        </div>
-
-        <!-- ✅ Student List -->
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Actions</th>
-            </tr>
-            {% for student in students %}
-            <tr>
-                <td>{{ student[0] }}</td>
-                <td contenteditable="true" class="edit-username">{{ student[1] }}</td>
-                <td class="actions">
-                    <button class="update-btn" onclick="updateStudent({{ student[0] }}, this)">Update</button>
-                    <button class="delete-btn" onclick="deleteStudent({{ student[0] }})">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
-
-        <!-- ✅ Logout Button -->
-        <div class="logout-container">
-            <button class="logout-button" onclick="logout()">Logout</button>
-        </div>
+    <!-- ✅ Add Student Form -->
+    <div class="form-container">
+        <input type="text" id="new-username" placeholder="Student Name" required>
+        <input type="password" id="new-password" placeholder="Password" required>
+        <input type="number" id="new-points" placeholder="Starting Points" required>
+        <button onclick="addStudent()">Add Student</button>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <!-- ✅ Upload CSV File -->
+    <div class="csv-container">
+        <h3>Upload CSV File</h3>
+        <input type="file" id="csv-file" accept=".csv">
+        <button onclick="uploadCSV()">Upload CSV</button>
+    </div>
+
+    <!-- ✅ Student List with Integrated Search -->
+    <div class="table-container">
+        <h3>Student List</h3>
+
+        <!-- ✅ Search Bar Inside Student List -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search by ID or Name">
+            <button onclick="searchStudents()">Search</button>
+        </div>
+
+        <!-- ✅ Student List Table -->
+        <table id="student-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Points</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="student-list">
+                {% for student in students %}
+                <tr id="student-{{ student[0] }}">
+                    <td>{{ student[0] }}</td>
+                    <td contenteditable="true" class="edit-username">{{ student[1] }}</td>
+                    <td>{{ student[2] }}</td>
+                    <td class="actions">
+                        <button class="update-btn" onclick="updateStudent({{ student[0] }}, this)">Update</button>
+                        <button class="delete-btn" onclick="deleteStudent({{ student[0] }})">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ✅ Logout Button -->
+    <div class="logout-container">
+        <button class="logout-button" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 
 </html>
@@ -56,16 +214,39 @@
     async function addStudent() {
         let username = document.getElementById('new-username').value;
         let password = document.getElementById('new-password').value;
+        let points = document.getElementById('new-points').value; // Add points field
 
-        if (!username || !password) {
-            alert("Username and password are required!");
+        if (!username || !password || !points) {
+            alert("All fields (Username, Password, Points) are required!");
             return;
         }
 
         let response = await fetch('/add_student', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ username, password, points })
+        });
+
+        let result = await response.json();
+        alert(result.message);
+        if (result.success) location.reload();
+    }
+
+    async function uploadCSV() {
+        let fileInput = document.getElementById("csv-file");
+        let file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a CSV file!");
+            return;
+        }
+
+        let formData = new FormData();
+        formData.append("file", file);
+
+        let response = await fetch('/upload-csv', {
+            method: 'POST',
+            body: formData
         });
 
         let result = await response.json();
@@ -131,6 +312,30 @@
             alert("An unexpected error occurred: " + error.message);
         }
     }
+
+    async function fetchStudents() {
+        let response = await fetch('/get_students');
+        let students = await response.json();
+
+        let tableBody = document.querySelector(".student-list tbody");
+        tableBody.innerHTML = "";  // Clear previous data
+
+        students.forEach(student => {
+            let row = `<tr>
+            <td>${student[0]}</td>
+            <td contenteditable="true" class="edit-username">${student[1]}</td>
+            <td>${student[2]}</td> <!-- ✅ Ensure Points are Added -->
+            <td>
+                <button class="update-btn" onclick="updateStudent(${student[0]}, this)">Update</button>
+                <button class="delete-btn" onclick="deleteStudent(${student[0]})">Delete</button>
+            </td>
+        </tr>`;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    // ✅ Call this function when the page loads
+    window.onload = fetchStudents;
 
     async function logout() {
         let response = await fetch('/logout');

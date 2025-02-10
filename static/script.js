@@ -138,3 +138,56 @@ async function redeemItem(itemName) {
     }
 }
 
+async function addStudent() {
+    let username = document.getElementById('new-username').value;
+    let password = document.getElementById('new-password').value;
+    let points = document.getElementById('new-points').value; // ✅ Get points value
+
+    if (!username || !password || !points) {
+        alert("All fields are required!");
+        return;
+    }
+
+    let response = await fetch('/add_student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, points }) // ✅ Send points
+    });
+
+    let result = await response.json();
+    alert(result.message);
+    if (result.success) location.reload(); // ✅ Reload to update student list
+}
+
+async function searchStudents() {
+    let query = document.getElementById("search-input").value;
+
+    let response = await fetch("/search_students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+    });
+
+    let result = await response.json();
+
+    // ✅ Clear the table before inserting new search results
+    let studentList = document.getElementById("student-list");
+    studentList.innerHTML = "";
+
+    // ✅ Populate table with search results
+    result.students.forEach(student => {
+        let row = `
+            <tr id="student-${student[0]}">
+                <td>${student[0]}</td>
+                <td contenteditable="true" class="edit-username">${student[1]}</td>
+                <td>${student[2]}</td>
+                <td class="actions">
+                    <button class="update-btn" onclick="updateStudent(${student[0]}, this)">Update</button>
+                    <button class="delete-btn" onclick="deleteStudent(${student[0]})">Delete</button>
+                </td>
+            </tr>`;
+        studentList.innerHTML += row;
+    });
+}
+
+

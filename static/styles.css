@@ -446,12 +446,12 @@ button.delete-btn:hover {
 .logout-button:hover {
   background-color: #c82333;
 }
+
 .table-container {
-  max-height: 400px; /* Adjust height as needed */
-  overflow-y: auto;
-  display: block;
-  border: 1px solid #ddd;
-  padding: 10px;
+  max-height: 1000px; /* Set a fixed height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  border: 1px solid #ddd; /* Add a border for clarity */
+  margin-top: 10px;
 }
 
 table {

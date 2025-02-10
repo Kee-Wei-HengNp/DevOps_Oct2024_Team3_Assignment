@@ -2,7 +2,7 @@ import sqlite3
 import random
 from flask import Flask, request, jsonify, render_template, session, redirect, url_for
 import csv  # ✅ Required for CSV handling
-
+import os
 
 app = Flask(__name__)
 
@@ -63,46 +63,61 @@ def login():
         return jsonify({"success": False, "message": "Invalid username or password"}), 401
 
 
+
 @app.route('/admin')
 def admin_page():
     print(f"Session Data: {session}")  # ✅ Debugging session
-
+    
     # ✅ Prevent unauthorized access
     if "username" not in session or session.get("role") != "admin":
         return redirect(url_for("home"))  # Redirect unauthorized users to home
 
-    # ✅ Fetch student list from the database
+    # ✅ Fetch students including points
     conn = db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username FROM users WHERE role = 'student'")
-    students = cursor.fetchall()  # Fetch all students as a list of tuples
+    cursor.execute("SELECT id, username, points FROM users WHERE role = 'student'")
+    students = cursor.fetchall()
     conn.close()
 
-    # ✅ Render admin.html with student data
+    # ✅ Render the Admin Page with updated students list
     return render_template("admin.html", username=session["username"], students=students)
 
-# ✅ Create New Student
-@app.route('/add_student', methods=['POST'])
-def add_student():
-    if "username" not in session or session.get("role") != "admin":
-        return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    data = request.json
-    username = data.get("username")
-    password = data.get("password")
 
-    if not username or not password:
-        return jsonify({"success": False, "message": "Username and password are required!"})
+# ✅ Upload CSV File & Populate Database
+@app.route('/upload-csv', methods=['POST'])
+def upload_csv():
+    if 'file' not in request.files:
+        return jsonify({"success": False, "message": "No file provided!"}), 400
+
+    file = request.files['file']
+
+    if not file.filename.endswith('.csv'):
+        return jsonify({"success": False, "message": "Invalid file format. Only CSV allowed!"}), 400
 
     conn = db_connection()
     cursor = conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, 'student')", (username, password))
+        file_path = os.path.join("uploads", file.filename)
+        file.save(file_path)
+
+        with open(file_path, newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)  # Skip header row
+
+            for row in reader:
+                if len(row) < 3:
+                    continue  # Ignore incomplete rows
+                
+                username, password, points = row[0], row[1], row[2]
+                cursor.execute("INSERT INTO users (username, password, role, points) VALUES (?, ?, ?, ?)",
+                               (username, password, 'student', points))
+        
         conn.commit()
-        return jsonify({"success": True, "message": "Student added successfully!"})
-    except sqlite3.IntegrityError:
-        return jsonify({"success": False, "message": "Username already exists!"})
+        return jsonify({"success": True, "message": "Students uploaded successfully!"})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)})
     finally:
         conn.close()
 
@@ -161,62 +176,66 @@ def delete_student():
         conn.close()
         
 # ✅ Search Student
-@app.route('/search_student', methods=['GET'])
-def search_student():
-    if "username" not in session or session.get("role") != "admin":
-        return jsonify({"success": False, "message": "Unauthorized"}), 403
-
-    query = request.args.get("query", "").strip()
-    if not query:
-        return jsonify({"success": False, "message": "Search query is required!"})
+@app.route('/search_students', methods=['POST'])
+def search_students():
+    data = request.json
+    search_query = data.get('query', '')
 
     conn = db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username FROM users WHERE username LIKE ? OR id LIKE ?", (f"%{query}%", f"%{query}%"))
+
+    # ✅ Search by ID or Username (case-insensitive)
+    cursor.execute("SELECT id, username, points FROM users WHERE role='student' AND (id LIKE ? OR username LIKE ?)", 
+                   ('%' + search_query + '%', '%' + search_query + '%'))
+
     students = cursor.fetchall()
     conn.close()
 
-    return jsonify({"success": True, "students": [dict(row) for row in students]})
+    return jsonify({"students": students})
 
 
-# ✅ Bulk Upload Students via CSV
-@app.route('/upload_csv', methods=['POST'])
-def upload_csv():
-    if "username" not in session or session.get("role") != "admin":
-        return jsonify({"success": False, "message": "Unauthorized"}), 403
 
-    file = request.files.get("file")
-    if not file:
-        return jsonify({"success": False, "message": "No file uploaded!"})
+@app.route('/add_student', methods=['POST'])
+def add_student():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    points = data.get('points')  # ✅ Get points
+
+    if not username or not password or points is None:
+        return jsonify({"success": False, "message": "All fields are required!"}), 400
 
     conn = db_connection()
     cursor = conn.cursor()
 
-    csv_reader = csv.reader(file.stream.read().decode("utf-8").splitlines())
-    next(csv_reader)  # Skip header row
-
-    for row in csv_reader:
-        try:
-            cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, 'student')", (row[0], row[1]))
-        except sqlite3.IntegrityError:
-            continue  # Skip duplicate usernames
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"success": True, "message": "CSV data uploaded successfully!"})
+    try:
+        cursor.execute("INSERT INTO users (username, password, role, points) VALUES (?, ?, 'student', ?)", 
+                       (username, password, points))  # ✅ Insert points
+        conn.commit()
+        return jsonify({"success": True, "message": "Student added successfully!"})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"success": False, "message": "Failed to add student."}), 500
+    finally:
+        conn.close()
 
 @app.route('/student')
 def student_page():
-    print(f"Session Data: {session}")  # ✅ Debugging session
     if "username" not in session or session.get("role") != "student":
-        return redirect(url_for("home"))  # Redirect unauthorized users
+        return redirect(url_for("home"))  # Redirect unauthorized users to login
 
-    user_data = {
-        "username": session["username"],
-        "points": random.randint(0, 9999)
-    }
-    return render_template('student.html', username=user_data["username"], points=user_data["points"])
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # ✅ Ensure the points column is selected
+    cursor.execute("SELECT username, points FROM users WHERE username=?", (session["username"],))
+    user_data = cursor.fetchone()
+    conn.close()
+
+    if user_data:
+        return render_template('student.html', username=user_data[0], points=user_data[1])
+    else:
+        return "Student record not found!", 404       
 
 # Dummy student data (will be stored in DB later)
 students = {
@@ -242,25 +261,6 @@ def redeemable_items_page():
 
 
 
-@app.route('/create-account')
-def create_account():
-    return render_template('create_account.html')
-
-@app.route('/search-account')
-def search_account():
-    return render_template('search_account.html')
-
-@app.route('/modify-account')
-def modify_account():
-    return render_template('modify_account.html')
-
-@app.route('/list-account')
-def list_account():
-    return render_template('list_account.html')
-
-@app.route('/delete-account')
-def delete_account():
-    return render_template('delete_account.html')
 
 @app.route('/redeemed-items')
 def redeemed_items_page():
