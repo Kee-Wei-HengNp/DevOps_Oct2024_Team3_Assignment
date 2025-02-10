@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to the Admin Page!</h1>
+    <div class="admin-container">
+        <h1>Welcome to Admin Page</h1>
+
+        <div class="admin-options">
+            <a href="/create-account" class="button">Create Account</a>
+            <a href="/delete-account" class="button">Delete Account</a>
+            <a href="/modify-account" class="button">Modify Account</a>
+            <a href="/list-account" class="button">List Student Account</a>
+            <a href="/search-account" class="button">Search Account</a>
+            <a href="/item-redemption" class="button">Create, modify and delete items for redemption (work in progress)</a>
+        </div>
+    </div>
 </body>
 </html>

@@ -92,20 +92,96 @@ a:hover {
   margin: auto;
 }
 
+.create-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+  margin: auto;
+}
+
+.admin-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+  margin: auto;
+}
+
+.admin-options{
+  width:auto;
+  margin-right: 30px;
+}
+
 .student-options {
   margin-top: 20px;
 }
 
+.create-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+.Modify-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+.Search-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+.account-list-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
+.account-list-container h1{
+  font-family:'Courier New', Courier, monospace;
+}
+
+.Modify-account-container h1{
+  width: auto;
+}
+
+.Delete-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
+}
+
 .button {
   display: block;
-  width: 100%;
   padding: 10px;
-  margin: 10px 0;
+  margin-top: 10px;
   background-color: #007bff;
   color: white;
   text-decoration: none;
   border-radius: 5px;
-  text-align: center;
 }
 
 .button:hover {

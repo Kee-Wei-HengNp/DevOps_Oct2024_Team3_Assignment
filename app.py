@@ -81,15 +81,55 @@ def student_page():
     }
     return render_template('student.html', username=user_data["username"], points=user_data["points"])
 
+# Dummy student data (will be stored in DB later)
+students = {
+    "test_student": {
+        "points": random.randint(500, 9999),
+        "redeemed_items": []  # Initially empty
+    }
+}
+
+# Dummy redeemable items
+redeemable_items = [
+    {"name": "AAA", "cost": 200},
+    {"name": "BBB", "cost": 300},
+    {"name": "CCC", "cost": 400}
+]
+
 
 @app.route('/redeemable-items')
-def redeemable_items():
-    return render_template('redeemable_items.html')
+def redeemable_items_page():
+    """Display available redeemable items."""
+    user = students["test_student"]
+    return render_template('redeemable_items.html', items=redeemable_items, points=user["points"])
 
+
+
+@app.route('/create-account')
+def create_account():
+    return render_template('create_account.html')
+
+@app.route('/search-account')
+def search_account():
+    return render_template('search_account.html')
+
+@app.route('/modify-account')
+def modify_account():
+    return render_template('modify_account.html')
+
+@app.route('/list-account')
+def list_account():
+    return render_template('list_account.html')
+
+@app.route('/delete-account')
+def delete_account():
+    return render_template('delete_account.html')
 
 @app.route('/redeemed-items')
-def redeemed_items():
-    return render_template('redeemed_items.html')
+def redeemed_items_page():
+    """Display all previously redeemed items."""
+    user = students["test_student"]
+    return render_template('redeemed_items.html', items=user["redeemed_items"])
 
 
 @app.route('/recover-password')
@@ -101,5 +141,31 @@ def logout():
     session.clear()  # ✅ Clears all session data (logs user out)
     return redirect(url_for('home'))  # ✅ Redirect to login page
 
+
+@app.route('/redeem-item', methods=['POST'])
+def redeem_item():
+    """Handle item redemption."""
+    data = request.json
+    item_name = data.get("item")
+
+    user = students["test_student"]
+    user_points = user["points"]
+
+    item = next((i for i in redeemable_items if i["name"] == item_name), None)
+
+    if not item:
+        return jsonify({"success": False, "message": "Item not found!"}), 404
+
+    if user_points < item["cost"]:
+        return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
+
+    # Deduct points and store redeemed item
+    user["points"] -= item["cost"]
+    user["redeemed_items"].append(item_name)
+
+    return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": user["points"]})
+
 if __name__ == '__main__':
     app.run(debug=True)
+
+
