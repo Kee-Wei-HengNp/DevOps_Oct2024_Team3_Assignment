@@ -68,29 +68,36 @@ def student_page():
     }
     return render_template('student.html', username=user_data["username"], points=user_data["points"])
 
-# Dummy student data (for now, this will be replaced with actual user sessions later)
+# Dummy student data (will be stored in DB later)
 students = {
-    "test_student": {"points": random.randint(500, 9999)}
+    "test_student": {
+        "points": random.randint(500, 9999),
+        "redeemed_items": []  # Initially empty
+    }
 }
 
-# Dummy redeemable items (fixed list for now)
+# Dummy redeemable items
 redeemable_items = [
     {"name": "AAA", "cost": 200},
     {"name": "BBB", "cost": 300},
     {"name": "CCC", "cost": 400}
 ]
 
+
 @app.route('/redeemable-items')
 def redeemable_items_page():
     """Display available redeemable items."""
-    user = students["test_student"]  # Simulated logged-in student
+    user = students["test_student"]
     return render_template('redeemable_items.html', items=redeemable_items, points=user["points"])
 
 
 
+
 @app.route('/redeemed-items')
-def redeemed_items():
-    return render_template('redeemed_items.html')
+def redeemed_items_page():
+    """Display all previously redeemed items."""
+    user = students["test_student"]
+    return render_template('redeemed_items.html', items=user["redeemed_items"])
 
 
 @app.route('/recover-password')
@@ -105,10 +112,9 @@ def redeem_item():
     data = request.json
     item_name = data.get("item")
 
-    user = students["test_student"]  # Simulated logged-in student
+    user = students["test_student"]
     user_points = user["points"]
 
-    # Find the item
     item = next((i for i in redeemable_items if i["name"] == item_name), None)
 
     if not item:
@@ -117,8 +123,10 @@ def redeem_item():
     if user_points < item["cost"]:
         return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
 
-    # Deduct points and confirm redemption
+    # Deduct points and store redeemed item
     user["points"] -= item["cost"]
+    user["redeemed_items"].append(item_name)
+
     return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": user["points"]})
 
 if __name__ == '__main__':
