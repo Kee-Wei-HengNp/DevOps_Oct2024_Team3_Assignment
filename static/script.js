@@ -121,3 +121,20 @@ function deleteStudent(studentId) {
     })
     .catch(error => console.error("Error:", error));
 }
+async function redeemItem(itemName) {
+    const response = await fetch('/redeem-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item: itemName })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        alert(result.message);
+        document.getElementById("user-points").textContent = result.remaining_points;
+    } else {
+        alert(result.message);
+    }
+}
+
