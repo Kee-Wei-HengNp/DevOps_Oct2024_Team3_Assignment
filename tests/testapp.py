@@ -143,6 +143,46 @@ class FlaskAppTestCase(unittest.TestCase):
         # Placeholder text
         self.assertIn(
             b"This page will display items that the student has already redeemed.", response.data)
+        
+    ### ✅ TEST REDEEMED ITEMS PAGE (NO ITEMS) ###
+    def test_redeemed_items_page_no_items(self):
+        """Test if the redeemed items page shows the correct message when no items are redeemed."""
+        students["test_student"]["redeemed_items"] = []  # No redeemed items
+
+        response = self.client.get('/redeemed-items')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"You have not redeemed any items yet.", response.data)
+        
+    ### ✅ TEST REDEEMED ITEMS PAGE (WITH ITEMS) ###
+    def test_redeemed_items_page_with_items(self):
+        """Test if the redeemed items page correctly displays redeemed items."""
+        students["test_student"]["redeemed_items"] = ["AAA", "BBB"]  # Some redeemed items
+
+        response = self.client.get('/redeemed-items')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"AAA", response.data)
+        self.assertIn(b"BBB", response.data)
+        
+    ### ✅ TEST REDEMPTION AND DISPLAY ###
+    def test_redeem_and_display(self):
+        """Test redeeming an item and verifying it appears on the redeemed items page."""
+        students["test_student"]["points"] = 500  # Ensure enough points
+        students["test_student"]["redeemed_items"] = []  # Start with empty list
+
+        # Redeem item "AAA"
+        response = self.client.post('/redeem-item', data=json.dumps({
+            "item": "AAA"
+        }), content_type='application/json')
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data["success"])
+        self.assertEqual(students["test_student"]["points"], 300)  # 500 - 200 = 300
+
+        # Check that "AAA" is now in redeemed items
+        response = self.client.get('/redeemed-items')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"AAA", response.data)
 
 
 if __name__ == '__main__':
