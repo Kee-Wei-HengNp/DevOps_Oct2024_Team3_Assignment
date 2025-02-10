@@ -75,7 +75,7 @@ def redeemed_items():
 
 @app.route('/recover-password')
 def recover_password():
-    return render_template('recover_password.html')
+    return render_template('recovery_page.html')
 
 
 if __name__ == '__main__':
