@@ -68,3 +68,21 @@ document.getElementById('login-form').addEventListener('submit', async function 
         document.getElementById('error-message').textContent = 'Unable to connect to the server.';
     }
 });
+
+async function redeemItem(itemName) {
+    const response = await fetch('/redeem-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item: itemName })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        alert(result.message);
+        document.getElementById("user-points").textContent = result.remaining_points;
+    } else {
+        alert(result.message);
+    }
+}
+

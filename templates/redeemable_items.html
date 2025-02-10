@@ -1,29 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Redeemable Items</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='styles.css') }}"
-    />
-  </head>
-  <body>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
     <div class="container">
-      <h1>Redeemable Items</h1>
-      <p>Your Total Points: <strong id="user-points">{{ points }}</strong></p>
-      <ul>
-        {% for item in items %}
-        <li>
-          <strong>{{ item.name }}</strong> - {{ item.cost }} Points
-          <button onclick="redeemItem('{{ item.name }}')">Redeem</button>
-        </li>
-        {% endfor %}
-      </ul>
-      <a href="/student">Back to Student Dashboard</a>
+        <h1>Redeemable Items</h1>
+        <p>Your Total Points: <strong id="user-points">{{ points }}</strong></p>
+        <ul>
+            {% for item in items %}
+            <li>
+                <strong>{{ item.name }}</strong> - {{ item.cost }} Points
+                <button onclick="redeemItem('{{ item.name }}')">Redeem</button>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="/student" class="button">Back to Student Dashboard</a>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
+</body>
 </html>

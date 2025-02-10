@@ -176,16 +176,36 @@ a:hover {
 
 .button {
   display: block;
-  width: 100%;
   padding: 10px;
-  margin: 10px 0;
+  margin-top: 10px;
   background-color: #007bff;
   color: white;
   text-decoration: none;
   border-radius: 5px;
-  text-align: center;
 }
 
 .button:hover {
   background-color: #0056b3;
+}
+
+.container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+  text-align: center;
+  margin: auto;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
 }

@@ -4,10 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redeemed Items</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Redeemed Items</h1>
-    <p>This page will display items that the student has already redeemed.</p>
-    <a href="/student">Back to Student Dashboard</a>
+    <div class="container">
+        <h1>Redeemed Items</h1>
+
+        {% if items %}
+            <ul>
+                {% for item in items %}
+                <li><strong>{{ item }}</strong></li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You have not redeemed any items yet.</p>
+        {% endif %}
+
+        <a href="/student" class="button">Back to Student Dashboard</a>
+    </div>
 </body>
 </html>
