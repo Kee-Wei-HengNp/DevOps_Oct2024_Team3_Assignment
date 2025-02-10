@@ -67,6 +67,10 @@ def student_page():
 def redeemable_items():
     return render_template('redeemable_items.html')
 
+@app.route('/create-account')
+def create_account():
+    return render_template('create_account.html')
+
 
 @app.route('/redeemed-items')
 def redeemed_items():

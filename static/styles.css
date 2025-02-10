@@ -92,8 +92,42 @@ a:hover {
   margin: auto;
 }
 
+.create-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+  margin: auto;
+}
+
+.admin-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  text-align: center;
+  margin: auto;
+}
+
+.admin-options{
+  width:auto;
+  margin-right: 30px;
+}
+
 .student-options {
   margin-top: 20px;
+}
+
+.create-account-container{
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  text-align: center;
 }
 
 .button {
