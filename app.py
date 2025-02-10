@@ -1,10 +1,13 @@
 import sqlite3
 import random
-from flask import Flask, render_template, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify,session, redirect, url_for
 
 app = Flask(__name__)
 
-app.secret_key = "supersecretkey"  # Required for session management
+# ✅ Add session configurations here
+app.secret_key = 'supersecretkey'  # Required for session management
+app.config['SESSION_PERMANENT'] = True
+app.config['SESSION_TYPE'] = 'filesystem'  # Store session in a file (persistent across requests)
 
 
 # Helper function to connect to the database
@@ -38,12 +41,20 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
+    print(f"Login Attempt: username={username}, password={password}")  # ✅ Debug login attempt
+
     if not username or not password:
         return jsonify({"success": False, "message": "Username or password is missing!"}), 400
 
     user = get_user_from_db(username)
     if user and user[1] == password:  # Check if password matches
         role = user[2]  # Get the role (admin or student)
+
+         # ✅ Store session data
+        session["username"] = username
+        session["role"] = role
+        print(f"Session After Login: {session}")  # ✅ Debug session after login
+
         redirect_url = "/admin" if role == "admin" else "/student"
         return jsonify({"success": True, "redirect_url": redirect_url})
     else:
@@ -52,19 +63,21 @@ def login():
 
 @app.route('/admin')
 def admin_page():
+    print(f"Session Data: {session}")  # ✅ Debugging session
     if "username" not in session or session.get("role") != "admin":
-        return redirect(url_for("home"))  # Redirect to login page if unauthorized
-    return render_template('admin.html')
+        return redirect(url_for("home"))  # Redirect unauthorized users
+    return "Welcome to Admin Page"  
 
 
 @app.route('/student')
 def student_page():
+    print(f"Session Data: {session}")  # ✅ Debugging session
     if "username" not in session or session.get("role") != "student":
-        return redirect(url_for("home"))  # Redirect to login page if unauthorized
-    # Dummy user data (will be replaced with real session-based data later)
+        return redirect(url_for("home"))  # Redirect unauthorized users
+
     user_data = {
-        "username": "test_student",
-        "points": random.randint(0, 9999)  # Random value for now
+        "username": session["username"],
+        "points": random.randint(0, 9999)
     }
     return render_template('student.html', username=user_data["username"], points=user_data["points"])
 
@@ -83,6 +96,10 @@ def redeemed_items():
 def recover_password():
     return render_template('recover_password.html')
 
+@app.route('/logout')
+def logout():
+    session.clear()  # ✅ Clears all session data (logs user out)
+    return redirect(url_for('home'))  # ✅ Redirect to login page
 
 if __name__ == '__main__':
     app.run(debug=True)

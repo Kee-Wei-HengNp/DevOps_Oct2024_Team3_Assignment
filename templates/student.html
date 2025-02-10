@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <div class="student-container">
         <h1>Welcome, <span id="username">{{ username }}</span>!</h1>
@@ -15,6 +17,8 @@
             <a href="/redeemable-items" class="button">Redeemable Items</a>
             <a href="/redeemed-items" class="button">Redeemed Items</a>
         </div>
+        <a href="/logout" class="logout-button">Logout</a>
     </div>
 </body>
+
 </html>

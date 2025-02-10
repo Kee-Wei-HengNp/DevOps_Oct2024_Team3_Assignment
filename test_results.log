@@ -1,0 +1,36 @@
+2025-02-10 15:44:14,361 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 15:44:22,305 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 15:46:06,246 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 15:59:55,889 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:00:03,858 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:00:50,484 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:01:57,546 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:02:22,900 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:08:58,398 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:09:04,151 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:11:14,514 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 16:11:22,677 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 18:06:35,813 - \u274c Redirection FAILED! Current URL: http://127.0.0.1:5000/admin
+2025-02-10 18:06:52,748 - \u274c Redirection FAILED! Current URL: http://127.0.0.1:5000/student
+2025-02-10 18:06:54,873 - Error terminating service process.
+Traceback (most recent call last):
+  File "C:\Users\junwe\Downloads\DevOps Assignment\DevOps_Oct2024_Team3_Assignment\venv\Lib\site-packages\selenium\webdriver\common\service.py", line 181, in _terminate_process
+    self.process.terminate()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.13_3.13.752.0_x64__qbz5n2kfra8p0\Lib\subprocess.py", line 1688, in terminate
+    _winapi.TerminateProcess(self._handle, 1)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+OSError: [WinError 6] The handle is invalid
+2025-02-10 19:05:05,281 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:05:15,540 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:05:40,785 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:05:50,469 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:17:14,012 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:17:22,057 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:19:46,344 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:19:57,124 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:26:35,536 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:26:45,487 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:30:24,369 - \u2705 Error Message Verified: Username or password is missing!
+2025-02-10 19:30:35,938 - \u2705 Redirection Verified: http://127.0.0.1:5000/
+2025-02-10 19:30:43,323 - \u2705 Redirection Verified: http://127.0.0.1:5000/

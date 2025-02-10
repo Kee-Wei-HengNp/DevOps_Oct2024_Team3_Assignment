@@ -15,6 +15,12 @@ document.getElementById('login-form').addEventListener('submit', async function 
     
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        // Custom validation: Check if fields are empty
+        if (username === "" || password === "") {
+            errorMessage.textContent = "Username or password is missing!";
+            errorMessage.style.color = "red";
+            return; // Stop execution
+        }
     
         try {
             const response = await fetch('/login', {
