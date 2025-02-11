@@ -302,6 +302,33 @@ def redeem_item():
 
     return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": user["points"]})
 
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json
+    username = data.get("username")
+    new_password = data.get("newPassword")
+
+    if not username or not new_password:
+        return jsonify({"success": False, "message": "Username and new password are required!"}), 400
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Check if the user exists
+    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"success": False, "message": "User not found!"}), 404
+
+    # Update password
+    cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password successfully reset!"})
+
 if __name__ == '__main__':
     app.run(debug=True)
 

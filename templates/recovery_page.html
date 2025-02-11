@@ -3,19 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>Recovery Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
   <body>
     <div class="recover-password-container">
       <h1>Recover Password</h1>
-      <form id="recover-password">
-        <input type="text" id="username" placeholder="Username" required autocomplete="off">
-        <input type="password" id="password" placeholder="New Password" required autocomplete="off">            
+      <form id="reset-password">
+        <input type="text" id="exist-username" placeholder="Username" required autocomplete="off">
+        <input type="password" id="password-reset" placeholder="New Password" required autocomplete="off">            
         <button type="submit">Reset</button>
       </form>
-      <p id="new-password"></p>
     </div>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>
+
+<script>
+
+    document.getElementById('reset-password').addEventListener("submit", async function (e) {
+        e.preventDefault()
+        const username = document.getElementById("exist-username").value;
+        const newPassword = document.getElementById("password-reset").value;
+
+        if (!username || !newPassword) {
+            alert("Please fill in all fields.");
+            return;
+        }
+
+    
+        const response = await fetch("/reset-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username, newPassword })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(result.message);
+            window.location.href='/'; //Redirect to login page
+
+        } else {
+            alert(result.message);
+        }
+
+
+    });
+    
+</script>
