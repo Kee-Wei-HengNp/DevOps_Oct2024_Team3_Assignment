@@ -12,8 +12,13 @@ def setup_database():
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
 
-    # ✅ Ensure the `users` table exists
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+    # ✅ Drop existing tables to ensure a clean test environment
+    cursor.execute("DROP TABLE IF EXISTS users")
+    cursor.execute("DROP TABLE IF EXISTS redeemable_items")
+    cursor.execute("DROP TABLE IF EXISTS redeemed_items")
+
+    # ✅ Recreate the tables
+    cursor.execute('''CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
@@ -21,25 +26,23 @@ def setup_database():
         points INTEGER DEFAULT 0
     )''')
 
-    # ✅ Ensure the `redeemed_items` table exists
-    cursor.execute('''CREATE TABLE IF NOT EXISTS redeemed_items (
+    cursor.execute('''CREATE TABLE redeemable_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        cost INTEGER NOT NULL
+    )''')
+
+    cursor.execute('''CREATE TABLE redeemed_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL,
         item_name TEXT NOT NULL,
         FOREIGN KEY(username) REFERENCES users(username)
     )''')
 
-    # ✅ Ensure the `redeemable_items` table exists
-    cursor.execute('''CREATE TABLE IF NOT EXISTS redeemable_items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        cost INTEGER NOT NULL
-    )''')
-
-    # ✅ Insert sample redeemable items if none exist
-    cursor.execute("INSERT OR IGNORE INTO redeemable_items (name, cost) VALUES ('AAA', 200)")
-    cursor.execute("INSERT OR IGNORE INTO redeemable_items (name, cost) VALUES ('BBB', 300)")
-    cursor.execute("INSERT OR IGNORE INTO redeemable_items (name, cost) VALUES ('CCC', 400)")
+    # ✅ Insert default test data
+    cursor.execute("INSERT INTO redeemable_items (name, cost) VALUES ('AAA', 200)")
+    cursor.execute("INSERT INTO redeemable_items (name, cost) VALUES ('BBB', 300)")
+    cursor.execute("INSERT INTO redeemable_items (name, cost) VALUES ('CCC', 400)")
 
     conn.commit()
     conn.close()
