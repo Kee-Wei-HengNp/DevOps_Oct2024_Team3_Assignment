@@ -1,4 +1,4 @@
-name: Move Trello Card on Feature Branch Creation
+nname: Move Trello Card on Feature Branch Creation
 
 on:
   create:
@@ -9,7 +9,14 @@ jobs:
   move-card:
     runs-on: ubuntu-latest
     steps:
+      - name: Find Trello Card ID
+        id: find_card
+        run: |
+          CARD_ID=$(curl -s "https://api.trello.com/1/search?query=${GITHUB_REF#refs/heads/feature/}&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" | jq -r '.cards[0].id')
+          echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
+
       - name: Move Trello Card to "In Development"
+        if: env.CARD_ID != ''
         run: |
           curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}/idList?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" \
           -H "Content-Type: application/json" \
