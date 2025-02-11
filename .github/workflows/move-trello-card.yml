@@ -12,7 +12,7 @@ jobs:
       - name: Extract Branch Name
         id: extract_branch
         run: |
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/feature\///' | sed 's/-/ /g')
+          BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}" | sed 's/feature\///' | sed 's/-/ /g')
           echo "Extracted Branch Name: $BRANCH_NAME"
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
@@ -20,32 +20,32 @@ jobs:
         id: find_card
         run: |
           API_URL="https://api.trello.com/1/search?query=${{ env.BRANCH_NAME }}&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
-          echo "Trello API Request: $API_URL"
+          echo "🔍 Searching Trello for card matching branch name: $API_URL"
 
           RESPONSE=$(curl -s "$API_URL")
           CARD_ID=$(echo "$RESPONSE" | jq -r '.cards[0].id')
 
-          echo "Trello API Response: $RESPONSE"
+          echo "📄 Trello API Response: $RESPONSE"
 
           if [[ -z "$CARD_ID" || "$CARD_ID" == "null" ]]; then
             echo "❌ No matching Trello card found for branch: $BRANCH_NAME"
             exit 1
           fi
 
-          echo "✅ Found Card ID: $CARD_ID"
+          echo "✅ Found Trello Card ID: $CARD_ID"
           echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
 
       - name: Move Trello Card to "In Development"
         if: env.CARD_ID != ''
         run: |
           MOVE_URL="https://api.trello.com/1/cards/${{ env.CARD_ID }}/idList?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
-          echo "🔄 Moving Trello Card via API: $MOVE_URL"
+          echo "🔄 Moving Trello Card to 'In Development' using API: $MOVE_URL"
 
           RESPONSE=$(curl -X PUT "$MOVE_URL" \
           -H "Content-Type: application/json" \
-          --data '{"idList": "${{ secrets.TRELLO_IN_DEVELOPMENT_LIST_ID }}"}')
+          --data "{\"idList\": \"${{ secrets.TRELLO_IN_DEVELOPMENT_LIST_ID }}\"}")
 
-          echo "Trello Move API Response: $RESPONSE"
+          echo "📄 Trello Move API Response: $RESPONSE"
 
           if [[ "$RESPONSE" == *"error"* ]]; then
             echo "❌ Error occurred while moving Trello card!"
@@ -53,5 +53,4 @@ jobs:
           fi
 
           echo "✅ Trello card successfully moved!"
-
 
