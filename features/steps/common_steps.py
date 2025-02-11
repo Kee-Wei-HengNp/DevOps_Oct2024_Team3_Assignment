@@ -72,6 +72,59 @@ def step_click_login(context):
     context.driver.execute_script(script)
     time.sleep(3)  # Allow time for the redirect
 
+@then(u'Verify error message "{error_msg}"')
+def verifyErrorMessage(context, error_msg):
+    wait = WebDriverWait(context.driver, 5)
+    error_element = wait.until(EC.visibility_of_element_located((By.ID, "error-message")))
+    actual_error = error_element.text
+
+    assert actual_error == error_msg, f"Expected '{error_msg}', but got '{actual_error}'"
+    logging.info(f"✅ Error Message Verified: {actual_error}")
+
+
+@then(u'Verify success message "{expected_message}"')
+def verify_success_message(context, expected_message):
+    """ ✅ Ensure the success message is found in an alert """
+    try:
+        # ✅ Wait for an alert to appear
+        WebDriverWait(context.driver, 5).until(EC.alert_is_present())
+        alert = context.driver.switch_to.alert
+        actual_message = alert.text
+
+        # ✅ Verify if the expected message matches the alert text
+        assert expected_message in actual_message, (
+            f"❌ Expected '{expected_message}', but got '{actual_message}'"
+        )
+
+        logging.info(f"✅ Alert Text: {actual_message}")
+
+        # ✅ Accept the alert to close it
+        alert.accept()
+
+    except Exception as e:
+        logging.error(f"❌ Error verifying success message: {str(e)}")
+        assert False, "❌ Success message not found as an alert!"
+
+
+@then(u'Verify total points is "{expected_points}"')
+def verify_updated_points(context, expected_points):
+    """ ✅ Ensure student points are updated correctly """
+    expected_points = int(expected_points)
+    
+    # ✅ Wait for total-points element to appear and update
+    points_element = WebDriverWait(context.driver, 10).until(
+        EC.presence_of_element_located((By.ID, "total-points"))
+    )
+
+    updated_points = int(points_element.text)
+
+    assert updated_points == expected_points, (
+        f"❌ Points not updated correctly! Expected {expected_points}, but got {updated_points}."
+    )
+
+    logging.info(f"✅ Points Updated: {updated_points} (Expected: {expected_points})")
+
+
 @then(u'Verify user is redirected to Login Page')
 def verifyRedirectToLogin(context):
     wait = WebDriverWait(context.driver, 10)
@@ -85,6 +138,23 @@ def verifyRedirectToLogin(context):
         # 🔴 Log the actual URL if redirection failed
         logging.error(f"❌ Redirection FAILED! Current URL: {context.driver.current_url}")
         assert context.driver.current_url == expected_url, f"Expected {expected_url}, but got {context.driver.current_url}"
+
+@then(u'Verify Student Dashboard is displayed')
+def verify_student_dashboard(context):
+    """ ✅ Ensure Student Dashboard is visible """
+    WebDriverWait(context.driver, 10).until(
+        EC.presence_of_element_located((By.CLASS_NAME, "student-container"))
+    )
+    assert "Student Dashboard" in context.driver.title, "❌ Student Dashboard is not displayed!"
+
+@then(u'Click Logout button')
+def click_logout(context):
+    """ ✅ Click Logout button """
+    logout_button = WebDriverWait(context.driver, 10).until(
+        EC.element_to_be_clickable((By.CLASS_NAME, "logout-button"))
+    )
+    logout_button.click()
+    time.sleep(2)
 
 @then(u'Close Browser')
 def closeBrowser(context):

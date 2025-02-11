@@ -224,8 +224,3 @@ def verify_student_removed(context, username):
     assert username not in student_list_text, f"❌ Student {username} was not removed!"
 
 
-@then(u'Click Logout button')
-def click_logout(context):
-    """ ✅ Click Logout """
-    context.driver.find_element(By.CLASS_NAME, "logout-button").click()
-    time.sleep(3)

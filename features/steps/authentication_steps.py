@@ -1,5 +1,5 @@
 from behave import *
-from features.steps.common_steps import step_click_login, closeBrowser # ✅ Import shared steps
+from features.steps.common_steps import step_click_login, closeBrowser,verifyErrorMessage # ✅ Import shared steps
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -26,14 +26,6 @@ def verifyLoginElements(context):
     except:
         assert False, "Login page elements not visible!"
 
-@then(u'Verify error message "{error_msg}"')
-def verifyErrorMessage(context, error_msg):
-    wait = WebDriverWait(context.driver, 5)
-    error_element = wait.until(EC.visibility_of_element_located((By.ID, "error-message")))
-    actual_error = error_element.text
-
-    assert actual_error == error_msg, f"Expected '{error_msg}', but got '{actual_error}'"
-    logging.info(f"✅ Error Message Verified: {actual_error}")
 
 
 # ✅ Add Empty Credentials Step Here
