@@ -32,7 +32,6 @@ class FlaskAppTestCase(unittest.TestCase):
                     ("admin_user", "adminpass"))
         cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, 'student')",
                     ("student_user", "studentpass"))
-                    ("student_user", "studentpass"))
         conn.commit()
         conn.close()
     
