@@ -205,5 +205,27 @@ class FlaskAppTestCase(unittest.TestCase):
         self.assertTrue(data["success"])
         self.assertEqual(data["message"], "Student deleted successfully!")
 
+    ### ✅ Test password reset for a specific user ###
+    def test_reset_password(self):
+        response = self.client.post('/reset-password', data=json.dumps({
+            "username": "student_user",
+            "old_password": "studentpass",
+            "new_password": "newpass123"
+        }), content_type='application/json')
+
+        data = response.get_json()
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['message'], "Password reset successful")
+
+        #Verify login with new password
+        login_response = self.client.post('/login', data=json.dumps({
+            "username": "student_user",
+            "password": "newpass123"
+        }), content_type='application/json')
+
+        self.assertEqual(login_response.status_code, 200)
+        self.assertTrue(login_response.get_json()["success"])
+
 if __name__ == '__main__':
     unittest.main()
