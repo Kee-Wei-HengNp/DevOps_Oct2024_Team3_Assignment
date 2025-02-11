@@ -1,0 +1,16 @@
+name: Move Trello Card on Feature Branch Creation
+
+on:
+  create:
+    branches:
+      - "feature/*"
+
+jobs:
+  move-card:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move Trello Card to "In Development"
+        run: |
+          curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}/idList?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          --data '{"idList": "${{ secrets.TRELLO_IN_DEVELOPMENT_LIST_ID }}"}'
