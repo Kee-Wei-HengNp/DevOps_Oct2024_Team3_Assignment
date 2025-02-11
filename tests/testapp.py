@@ -18,8 +18,10 @@ class FlaskAppTestCase(unittest.TestCase):
         """Helper function to create a test user in the database."""
         conn = db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT OR REPLACE INTO users (username, password, role, points) VALUES (?, ?, ?, ?)",
-                       (username, password, role, points))
+        cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, 'admin')",
+                    ("admin_user", "adminpass"))
+        cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, 'student')",
+                    ("student_user", "studentpass"))
         conn.commit()
         conn.close()
     
