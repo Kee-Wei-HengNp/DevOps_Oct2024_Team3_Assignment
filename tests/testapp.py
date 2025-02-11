@@ -260,7 +260,7 @@ class FlaskAppTestCase(unittest.TestCase):
     def test_reset_password(self):
         response = self.client.post('/reset-password', data=json.dumps({
             "username": "student_user",
-            "old_password": "studentpass"
+            "password": "studentpass"
         }), content_type='application/json')
 
         data = response.get_json()
