@@ -1,3 +1,6 @@
+
+document.addEventListener("DOMContentLoaded", function () {
+
 document.getElementById('login-form').addEventListener('submit', async function (event) {
     event.preventDefault();
 
@@ -10,7 +13,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const errorMessage = document.getElementById('error-message');
     
     // Handle login form submission
-    loginForm.addEventListener('submit', async (event) => {
+    loginForm.addEventListener('submit',async (event) => {
         event.preventDefault();
     
         const username = document.getElementById('username').value;
@@ -75,52 +78,84 @@ document.getElementById('login-form').addEventListener('submit', async function 
     }
 });
 
-function updateStudent(studentId, button) {
-    let row = document.getElementById("student-" + studentId);
-    let newUsername = row.querySelector(".edit-username").innerText.trim();
+// ✅ Attach event listeners
+document.getElementById("search-input").addEventListener("input", searchStudents);
+document.getElementById("add-student-btn").addEventListener("click", addStudent);
+});
 
-    if (newUsername === "") {
+async function updateStudent(studentId, button) {
+    let row = button.closest("tr");
+    let newUsername = row.querySelector(".edit-username").textContent.trim();
+    
+    if (!newUsername) {
         alert("Username cannot be empty!");
         return;
     }
 
-    fetch('/update-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: studentId, username: newUsername })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Student updated successfully!");
-        } else {
-            alert("Error updating student: " + data.message);
-        }
-    })
-    .catch(error => console.error("Error:", error));
-}
+    // ✅ Prompt admin for new password
+    let newPassword = prompt("Enter new password:");
 
-function deleteStudent(studentId) {
-    if (!confirm("Are you sure you want to delete this student?")) {
+    if (!newPassword) {
+        alert("Password cannot be empty!");
         return;
     }
 
-    fetch('/delete-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: studentId })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Student deleted successfully!");
-            document.getElementById("student-" + studentId).remove(); // Remove row from table
+    try {
+        let response = await fetch('/update-student', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: studentId, username: newUsername, password: newPassword })
+        });
+
+        let result = await response.json();
+
+        if (result.success) {
+            alert("Student updated successfully!");
+            location.reload(); // ✅ Refresh page after update
         } else {
-            alert("Error deleting student: " + data.message);
+            alert("Error updating student: " + result.message);
         }
-    })
-    .catch(error => console.error("Error:", error));
+    } catch (error) {
+        console.error("Error updating student:", error);
+        alert("An unexpected error occurred.");
+    }
 }
+
+async function deleteStudent(studentId) {
+    let studentRow = document.getElementById("student-" + studentId);
+
+    if (!studentRow) {
+        alert("❌ Student not found in the list!");
+        return;
+    }
+
+    let usernameCell = studentRow.querySelector(".edit-username").innerText.trim();
+
+    if (!confirm(`Are you sure you want to delete ${usernameCell}?`)) {
+        return;
+    }
+
+    try {
+        let response = await fetch('/delete-student', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: studentId })
+        });
+
+        let result = await response.json();
+
+        if (result.success) {
+            alert(`✅ ${usernameCell} deleted successfully!`);
+            studentRow.remove(); // ✅ Remove the row from the table
+        } else {
+            alert("❌ Error deleting student: " + result.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("❌ Unexpected error occurred while deleting student.");
+    }
+}
+
 async function redeemItem(itemName) {
     const response = await fetch('/redeem-item', {
         method: 'POST',
@@ -190,4 +225,35 @@ async function searchStudents() {
     });
 }
 
+async function uploadCSV() {
+    let fileInput = document.getElementById("csv-file");
+    let file = fileInput.files[0];
+
+    if (!file) {
+        alert("❌ Please select a CSV file before uploading!");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        let response = await fetch('/upload-csv', {
+            method: 'POST',
+            body: formData
+        });
+
+        let result = await response.json();
+
+        if (result.success) {
+            alert("✅ CSV uploaded successfully!");
+            location.reload();  // ✅ Reload page to update student list
+        } else {
+            alert("❌ Error uploading CSV: " + result.message);
+        }
+    } catch (error) {
+        console.error("❌ CSV Upload Error:", error);
+        alert("❌ Unexpected error occurred while uploading CSV.");
+    }
+}
 
