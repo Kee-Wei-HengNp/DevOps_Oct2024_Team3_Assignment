@@ -166,14 +166,25 @@ def delete_student():
     cursor = conn.cursor()
     
     try:
+        # ✅ Check if the student exists before deleting
+        cursor.execute("SELECT * FROM users WHERE id = ?", (student_id,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({"success": False, "message": "Student does not exist"}), 400
+
+        # ✅ If student exists, proceed with deletion
         cursor.execute("DELETE FROM users WHERE id = ?", (student_id,))
         conn.commit()
-        
-        return jsonify({"success": True, "message": "Student deleted successfully!"})  # ✅ Always return message
+
+        return jsonify({"success": True, "message": "Student deleted successfully!"})
+    
     except sqlite3.Error as e:
-        return jsonify({"success": False, "message": str(e)})
+        return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
+    
     finally:
         conn.close()
+
         
 # ✅ Search Student
 @app.route('/search_students', methods=['POST'])
@@ -221,29 +232,23 @@ def add_student():
 
 @app.route('/student')
 def student_page():
+    """Render the student dashboard."""
     if "username" not in session or session.get("role") != "student":
         return redirect(url_for("home"))  # Redirect unauthorized users to login
 
     conn = db_connection()
     cursor = conn.cursor()
-
-    # ✅ Ensure the points column is selected
     cursor.execute("SELECT username, points FROM users WHERE username=?", (session["username"],))
     user_data = cursor.fetchone()
     conn.close()
 
-    if user_data:
-        return render_template('student.html', username=user_data[0], points=user_data[1])
-    else:
-        return "Student record not found!", 404       
+    if not user_data:
+        return "Student record not found!", 404  # 🔹 Simplified error response
 
-# Dummy student data (will be stored in DB later)
-students = {
-    "test_student": {
-        "points": random.randint(500, 9999),
-        "redeemed_items": []  # Initially empty
-    }
-}
+    return render_template('student.html', username=user_data[0], points=user_data[1])
+   
+
+
 
 # Dummy redeemable items
 redeemable_items = [
@@ -256,8 +261,29 @@ redeemable_items = [
 @app.route('/redeemable-items')
 def redeemable_items_page():
     """Display available redeemable items."""
-    user = students["test_student"]
-    return render_template('redeemable_items.html', items=redeemable_items, points=user["points"])
+    if "username" not in session or session.get("role") != "student":
+        return redirect(url_for("home"))
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # ✅ Fetch user points
+    cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
+    user = cursor.fetchone()
+    
+    if not user:
+        return "Student record not found!", 404
+
+    points = user[0]
+
+    # ✅ Fetch redeemable items
+    cursor.execute("SELECT name, cost FROM redeemable_items")
+    items = cursor.fetchall()
+    conn.close()
+
+    return render_template('redeemable_items.html', points=points, items=items)
+
+
 
 
 
@@ -265,8 +291,19 @@ def redeemable_items_page():
 @app.route('/redeemed-items')
 def redeemed_items_page():
     """Display all previously redeemed items."""
-    user = students["test_student"]
-    return render_template('redeemed_items.html', items=user["redeemed_items"])
+    if "username" not in session or session.get("role") != "student":
+        return redirect(url_for("home"))  # Redirect unauthorized users
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # ✅ Fetch redeemed items from the database instead of `students`
+    cursor.execute("SELECT item_name FROM redeemed_items WHERE username=?", (session["username"],))
+    redeemed_items = cursor.fetchall()
+    conn.close()
+
+    return render_template('redeemed_items.html', items=[item[0] for item in redeemed_items])
+
 
 
 @app.route('/recover-password')
@@ -282,25 +319,74 @@ def logout():
 @app.route('/redeem-item', methods=['POST'])
 def redeem_item():
     """Handle item redemption."""
+    if "username" not in session or session.get("role") != "student":
+        return redirect(url_for("home"))
+
     data = request.json
     item_name = data.get("item")
 
-    user = students["test_student"]
-    user_points = user["points"]
+    conn = db_connection()
+    cursor = conn.cursor()
 
-    item = next((i for i in redeemable_items if i["name"] == item_name), None)
+    # ✅ Fetch user points
+    cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
+    user = cursor.fetchone()
+
+    if not user:
+        return jsonify({"success": False, "message": "Student record not found!"}), 404
+
+    user_points = user[0]
+
+    # ✅ Fetch item cost
+    cursor.execute("SELECT cost FROM redeemable_items WHERE name=?", (item_name,))
+    item = cursor.fetchone()
 
     if not item:
         return jsonify({"success": False, "message": "Item not found!"}), 404
 
-    if user_points < item["cost"]:
+    item_cost = item[0]
+
+    if user_points < item_cost:
         return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
 
-    # Deduct points and store redeemed item
-    user["points"] -= item["cost"]
-    user["redeemed_items"].append(item_name)
+    # ✅ Deduct points and record redemption
+    new_points = user_points - item_cost
+    cursor.execute("UPDATE users SET points=? WHERE username=?", (new_points, session["username"]))
+    cursor.execute("INSERT INTO redeemed_items (username, item_name) VALUES (?, ?)", (session["username"], item_name))
+    
+    conn.commit()
+    conn.close()
 
-    return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": user["points"]})
+    return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": new_points})
+
+
+
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json
+    username = data.get("username")
+    new_password = data.get("newPassword")
+
+    if not username or not new_password:
+        return jsonify({"success": False, "message": "Username and new password are required!"}), 400
+
+    conn = db_connection()
+    cursor = conn.cursor()
+
+    # Check if the user exists
+    cursor.execute("SELECT id FROM users WHERE username = ?", (username,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"success": False, "message": "User not found!"}), 404
+
+    # Update password
+    cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "message": "Password successfully reset!"})
 
 if __name__ == '__main__':
     app.run(debug=True)
