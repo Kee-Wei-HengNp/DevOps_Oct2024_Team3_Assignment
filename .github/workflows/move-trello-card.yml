@@ -12,7 +12,12 @@ jobs:
       - name: Find Trello Card ID
         id: find_card
         run: |
-          CARD_ID=$(curl -s "https://api.trello.com/1/search?query=${GITHUB_REF#refs/heads/feature/}&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" | jq -r '.cards[0].id')
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/feature\///')
+          echo "Extracted Branch Name: $BRANCH_NAME"
+          
+          CARD_ID=$(curl -s "https://api.trello.com/1/search?query=$BRANCH_NAME&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" | jq -r '.cards[0].id')
+
+          echo "Found Card ID: $CARD_ID"
           echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
 
       - name: Move Trello Card to "In Development"
