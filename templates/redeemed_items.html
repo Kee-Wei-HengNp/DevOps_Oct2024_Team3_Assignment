@@ -9,18 +9,16 @@
 <body>
     <div class="container">
         <h1>Redeemed Items</h1>
-
         {% if items %}
             <ul>
                 {% for item in items %}
-                <li><strong>{{ item }}</strong></li>
+                    <li><strong>{{ item }}</strong></li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>You have not redeemed any items yet.</p>
+            <p>No items redeemed yet.</p>
         {% endif %}
-
-        <a href="/student" class="button">Back to Student Dashboard</a>
+        <a href="/student">Back to Student Dashboard</a>
     </div>
 </body>
 </html>
