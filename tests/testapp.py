@@ -157,9 +157,7 @@ class FlaskAppTestCase(unittest.TestCase):
         """Test login failure due to missing username or password."""
         response = self.client.post('/login', data=json.dumps({
             "username": "",
-            "password": ""
-            "username": "",
-            "password": ""
+            "password": "",
         }), content_type='application/json')
 
         self.assertEqual(response.status_code, 400)
@@ -282,7 +280,7 @@ class FlaskAppTestCase(unittest.TestCase):
             sess["role"] = "student"
         
         response = self.client.post('/redeem-item', data=json.dumps({
-            "item": "AAA"
+            "item": "AAA",
             "item": "AAA"
         }), content_type='application/json')
         
@@ -346,9 +344,7 @@ class FlaskAppTestCase(unittest.TestCase):
         response = self.client.post('/add_student', data=json.dumps({
             "username": unique_username,
             "password": "testpassword",
-            "points": 500
-            "password": "testpassword",
-            "points": 500
+            "points": 500,
         }), content_type='application/json')
         
         
@@ -396,7 +392,7 @@ class FlaskAppTestCase(unittest.TestCase):
         print(f"DEBUG: Deleting student with ID {student_id}")  # ✅ Debugging
 
         response = self.client.post('/delete-student', data=json.dumps({
-            "id": student_id  # ✅ Send ID instead of username
+            "id": student_id,  # ✅ Send ID instead of username
             "id": student_id  # ✅ Send ID instead of username
         }), content_type='application/json')
 
