@@ -12,17 +12,46 @@ jobs:
       - name: Find Trello Card ID
         id: find_card
         run: |
+          # Extract branch name (removes "feature/" prefix)
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/feature\///')
           echo "Extracted Branch Name: $BRANCH_NAME"
-          
-          CARD_ID=$(curl -s "https://api.trello.com/1/search?query=$BRANCH_NAME&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" | jq -r '.cards[0].id')
 
-          echo "Found Card ID: $CARD_ID"
+          # API request URL
+          API_URL="https://api.trello.com/1/search?query=$BRANCH_NAME&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+          echo "Trello API Request: $API_URL"
+
+          # Fetch Trello Card ID
+          RESPONSE=$(curl -s "$API_URL")
+          CARD_ID=$(echo "$RESPONSE" | jq -r '.cards[0].id')
+
+          # Debugging: Print API Response (optional, remove if not needed)
+          echo "Trello API Response: $RESPONSE"
+
+          # Check if a valid CARD_ID was retrieved
+          if [[ -z "$CARD_ID" || "$CARD_ID" == "null" ]]; then
+            echo "❌ No matching Trello card found for branch: $BRANCH_NAME"
+            exit 1
+          fi
+
+          echo "✅ Found Card ID: $CARD_ID"
           echo "CARD_ID=$CARD_ID" >> $GITHUB_ENV
 
       - name: Move Trello Card to "In Development"
         if: env.CARD_ID != ''
         run: |
-          curl -X PUT "https://api.trello.com/1/cards/${{ env.CARD_ID }}/idList?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}" \
+          MOVE_URL="https://api.trello.com/1/cards/${{ env.CARD_ID }}/idList?key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+          echo "🔄 Moving Trello Card via API: $MOVE_URL"
+
+          RESPONSE=$(curl -X PUT "$MOVE_URL" \
           -H "Content-Type: application/json" \
-          --data '{"idList": "${{ secrets.TRELLO_IN_DEVELOPMENT_LIST_ID }}"}'
+          --data '{"idList": "${{ secrets.TRELLO_IN_DEVELOPMENT_LIST_ID }}"}')
+
+          echo "Trello Move API Response: $RESPONSE"
+
+          if [[ "$RESPONSE" == *"error"* ]]; then
+            echo "❌ Error occurred while moving Trello card!"
+            exit 1
+          fi
+
+          echo "✅ Trello card successfully moved!"
+
