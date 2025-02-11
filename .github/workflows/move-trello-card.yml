@@ -9,25 +9,24 @@ jobs:
   move-card:
     runs-on: ubuntu-latest
     steps:
+      - name: Extract Branch Name
+        id: extract_branch
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/feature\///' | sed 's/-/ /g')
+          echo "Extracted Branch Name: $BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
       - name: Find Trello Card ID
         id: find_card
         run: |
-          # Extract branch name (removes "feature/" prefix)
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | sed 's/feature\///')
-          echo "Extracted Branch Name: $BRANCH_NAME"
-
-          # API request URL
-          API_URL="https://api.trello.com/1/search?query=$BRANCH_NAME&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
+          API_URL="https://api.trello.com/1/search?query=${{ env.BRANCH_NAME }}&modelTypes=cards&key=${{ secrets.TRELLO_API_KEY }}&token=${{ secrets.TRELLO_TOKEN }}"
           echo "Trello API Request: $API_URL"
 
-          # Fetch Trello Card ID
           RESPONSE=$(curl -s "$API_URL")
           CARD_ID=$(echo "$RESPONSE" | jq -r '.cards[0].id')
 
-          # Debugging: Print API Response (optional, remove if not needed)
           echo "Trello API Response: $RESPONSE"
 
-          # Check if a valid CARD_ID was retrieved
           if [[ -z "$CARD_ID" || "$CARD_ID" == "null" ]]; then
             echo "❌ No matching Trello card found for branch: $BRANCH_NAME"
             exit 1
@@ -54,4 +53,5 @@ jobs:
           fi
 
           echo "✅ Trello card successfully moved!"
+
 
