@@ -259,11 +259,16 @@ class FlaskAppTestCase(unittest.TestCase):
     ### ✅ Test password reset for a specific user ###
     def test_reset_password(self):
         response = self.client.post('/reset-password', data=json.dumps({
-            "username": "student_user",
-            "password": "studentpass"
+             "username": "student_user",
+             "old_password": "studentpass",
+             "new_password": "newpass123"
         }), content_type='application/json')
 
         data = response.get_json()
+
+        if response.status_code != 200:
+            print(f'Reset password failed: {data}')
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue(data['success'])
         self.assertEqual(data['message'], "Password reset successful")
@@ -273,6 +278,8 @@ class FlaskAppTestCase(unittest.TestCase):
             "username": "student_user",
             "password": "newpass123"
         }), content_type='application/json')
+
+        print("RESET RESPONSE:", response.status_code, response.get_json())  # Debugging
 
         self.assertEqual(login_response.status_code, 200)
         self.assertTrue(login_response.get_json()["success"])
