@@ -177,7 +177,8 @@ class FlaskAppTestCase(unittest.TestCase):
 
         response = self.client.post('/add_student', data=json.dumps({
             "username": unique_username,
-            "password": "testpassword"
+            "password": "testpassword",
+            "points": 500  # ✅ Ensure points field is sent
         }), content_type='application/json')
 
         data = response.get_json()
