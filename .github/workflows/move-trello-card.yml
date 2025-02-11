@@ -1,4 +1,4 @@
-nname: Move Trello Card on Feature Branch Creation
+name: Move Trello Card on Feature Branch Creation
 
 on:
   create:
