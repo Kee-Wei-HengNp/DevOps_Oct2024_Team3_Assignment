@@ -16,7 +16,7 @@ class FlaskAppTestCase(unittest.TestCase):
         cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, 'admin')",
                     ("admin_user", "adminpass"))
         cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, 'student')",
-                    ("test_student", "testpass"))
+                    ("student_user", "studentpass"))
         conn.commit()
         conn.close()
 
@@ -177,7 +177,8 @@ class FlaskAppTestCase(unittest.TestCase):
 
         response = self.client.post('/add_student', data=json.dumps({
             "username": unique_username,
-            "password": "testpassword"
+            "password": "testpassword",
+            "points": 500  # ✅ Ensure points field is sent
         }), content_type='application/json')
 
         data = response.get_json()
