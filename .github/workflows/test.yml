@@ -25,6 +25,9 @@ jobs:
       - name: check behave version
         run: behave --version
 
+      - name: upgrade behave
+        run: pip install --upgrade behave 
+
       - name: Run Behave with JUnit Report
         run: behave -f pretty -f behave_junit_formatter.junit -o reports/behave_results.xml
 
