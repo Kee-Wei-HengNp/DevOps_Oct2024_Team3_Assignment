@@ -19,7 +19,7 @@ jobs:
         run: pip install behave[junit] junit2html
 
       - name: Run Behave with JUnit Report
-        run: behave -f pretty -f junit -o reports/behave_results.xml
+        run: behave --format=behave_junit_formatter.junit --out=reports/
 
       - name: Convert JUnit XML to HTML
         run: junit2html reports/behave_results.xml reports/test_report.html
