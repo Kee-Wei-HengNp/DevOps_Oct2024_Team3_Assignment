@@ -16,7 +16,11 @@ jobs:
           python-version: "3.8"
 
       - name: Install Dependencies
-        run: pip install behave behave-junit junit2html
+        run: |
+          pip install behave junit2html
+          
+      - name: check behave formatters
+        run: behave --format help
 
       - name: check behave version
         run: behave --version
