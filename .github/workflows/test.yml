@@ -1,0 +1,31 @@
+name: Run Behave Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.8"
+
+      - name: Install Dependencies
+        run: pip install behave junit2html
+
+      - name: Run Behave with JUnit Report
+        run: behave -f junit -o reports/
+
+      - name: Convert JUnit XML to HTML
+        run: junit2html reports/TESTS-TestSuite.xml reports/test_report.html
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Report
+          path: reports/test_report.html
