@@ -438,93 +438,43 @@ def redeem_item():
     if "username" not in session or session.get("role") != "student":
         return redirect(url_for("home"))
 
-    if "username" not in session or session.get("role") != "student":
-        return redirect(url_for("home"))
-
-    if "username" not in session or session.get("role") != "student":
-        return redirect(url_for("home"))
-
     data = request.json
     item_name = data.get("item")
 
-    conn = db_connection()
-    cursor = conn.cursor()
+    # ✅ Open database connection
+    with db_connection() as conn:
+        cursor = conn.cursor()
 
-    # ✅ Fetch user points
-    cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
-    user = cursor.fetchone()
+        # ✅ Fetch user points
+        cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
+        user = cursor.fetchone()
 
-    if not user:
-        return jsonify({"success": False, "message": "Student record not found!"}), 404
+        if not user:
+            return jsonify({"success": False, "message": "Student record not found!"}), 404
 
-    user_points = user[0]
-    conn = db_connection()
-    cursor = conn.cursor()
+        user_points = user[0]
 
-    # ✅ Fetch user points
-    cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
-    user = cursor.fetchone()
+        # ✅ Fetch item cost
+        cursor.execute("SELECT cost FROM redeemable_items WHERE name=?", (item_name,))
+        item = cursor.fetchone()
 
-    if not user:
-        return jsonify({"success": False, "message": "Student record not found!"}), 404
+        if not item:
+            return jsonify({"success": False, "message": "Item not found!"}), 404
 
-    user_points = user[0]
-    conn = db_connection()
-    cursor = conn.cursor()
-
-    # ✅ Fetch user points
-    cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
-    user = cursor.fetchone()
-
-    if not user:
-        return jsonify({"success": False, "message": "Student record not found!"}), 404
-
-    user_points = user[0]
-
-    # ✅ Fetch item cost
-    cursor.execute("SELECT cost FROM redeemable_items WHERE name=?", (item_name,))
-    item = cursor.fetchone()
-    # ✅ Fetch item cost
-    cursor.execute("SELECT cost FROM redeemable_items WHERE name=?", (item_name,))
-    item = cursor.fetchone()
-    # ✅ Fetch item cost
-    cursor.execute("SELECT cost FROM redeemable_items WHERE name=?", (item_name,))
-    item = cursor.fetchone()
-
-    if not item:
-        return jsonify({"success": False, "message": "Item not found!"}), 404
-
-    item_cost = item[0]
-
-    if user_points < item_cost:
         item_cost = item[0]
 
-    if user_points < item_cost:
-        return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
+        if user_points < item_cost:
+            return jsonify({"success": False, "message": "Not enough points to redeem this item!"}), 400
 
-    # ✅ Deduct points and record redemption
-    new_points = user_points - item_cost
-    cursor.execute("UPDATE users SET points=? WHERE username=?", (new_points, session["username"]))
-    cursor.execute("INSERT INTO redeemed_items (username, item_name) VALUES (?, ?)", (session["username"], item_name))
-    
-    conn.commit()
-    conn.close()
-    # ✅ Deduct points and record redemption
-    new_points = user_points - item_cost
-    cursor.execute("UPDATE users SET points=? WHERE username=?", (new_points, session["username"]))
-    cursor.execute("INSERT INTO redeemed_items (username, item_name) VALUES (?, ?)", (session["username"], item_name))
-    
-    conn.commit()
-    conn.close()
-    # ✅ Deduct points and record redemption
-    new_points = user_points - item_cost
-    cursor.execute("UPDATE users SET points=? WHERE username=?", (new_points, session["username"]))
-    cursor.execute("INSERT INTO redeemed_items (username, item_name) VALUES (?, ?)", (session["username"], item_name))
-    
-    conn.commit()
-    conn.close()
+        # ✅ Deduct points and record redemption
+        new_points = user_points - item_cost
+        cursor.execute("UPDATE users SET points=? WHERE username=?", (new_points, session["username"]))
+        cursor.execute("INSERT INTO redeemed_items (username, item_name) VALUES (?, ?)", (session["username"], item_name))
+
+        conn.commit()  # ✅ Ensure transaction is committed
 
     return jsonify({"success": True, "message": f"Successfully redeemed {item_name}!", "remaining_points": new_points})
+
 
 
 

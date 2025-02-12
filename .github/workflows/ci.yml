@@ -28,6 +28,10 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set up Database
+        run: python setup_db.py
+
+
       - name: Run unit tests
         id: test
         continue-on-error: false  # Stop if tests fail
