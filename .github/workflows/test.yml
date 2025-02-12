@@ -18,6 +18,9 @@ jobs:
       - name: Install Dependencies
         run: pip install behave behave-junit junit2html
 
+      - name: check behave version
+        run: behave --version
+
       - name: Run Behave with JUnit Report
         run: behave -f pretty -f behave_junit_formatter.junit -o reports/behave_results.xml
 
