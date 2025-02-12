@@ -16,13 +16,20 @@ jobs:
           python-version: "3.8"
 
       - name: Install Dependencies
-        run: pip install behave junit2html
+        run: |
+          pip install --upgrade behave junit2html
+          
+      - name: check behave formatters
+        run: behave --format help
+
+      - name: check behave version
+        run: behave --version
 
       - name: Run Behave with JUnit Report
-        run: behave -f junit -o reports/
+        run: behave -f pretty -f behave_junit_formatter.junit -o reports/behave_results.xml
 
       - name: Convert JUnit XML to HTML
-        run: junit2html reports/TESTS-TestSuite.xml reports/test_report.html
+        run: junit2html reports/behave_results.xml reports/test_report.html
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4

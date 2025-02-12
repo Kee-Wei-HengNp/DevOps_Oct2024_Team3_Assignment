@@ -204,6 +204,7 @@ def delete_student():
     except sqlite3.Error as e:
         return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
     
+    
         return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
     
         return jsonify({"success": False, "message": f"Database error: {str(e)}"}), 500
@@ -277,6 +278,7 @@ def student_page():
 
     return render_template('student.html', username=user_data[0], points=user_data[1])
    
+   
 
 
     if not user_data:
@@ -306,7 +308,7 @@ redeemable_items = [
 def redeemable_items_page():
     """Display available redeemable items."""
     if "username" not in session or session.get("role") != "student":
-        return redirect(url_for("home"))
+        return redirect(url_for("home"))  # Redirect unauthorized users
 
     conn = db_connection()
     cursor = conn.cursor()
@@ -314,12 +316,13 @@ def redeemable_items_page():
     # ✅ Fetch user points
     cursor.execute("SELECT points FROM users WHERE username=?", (session["username"],))
     user = cursor.fetchone()
-    
+
     if not user:
-        return "Student record not found!", 404
+        return "❌ Student record not found!", 404
 
     points = user[0]
 
+    # ✅ Fetch redeemable items from database
     # ✅ Fetch redeemable items
     cursor.execute("SELECT name, cost FROM redeemable_items")
     items = cursor.fetchall()
@@ -372,11 +375,6 @@ def redeemable_items_page():
     conn.close()
 
     return render_template('redeemable_items.html', points=points, items=items)
-
-
-
-
-
 
 @app.route('/redeemed-items')
 def redeemed_items_page():

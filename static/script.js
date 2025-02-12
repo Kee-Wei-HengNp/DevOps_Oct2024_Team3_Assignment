@@ -156,22 +156,49 @@ async function deleteStudent(studentId) {
     }
 }
 
+// ✅ Fixing the redeem item function
 async function redeemItem(itemName) {
-    const response = await fetch('/redeem-item', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ item: itemName })
-    });
+    const confirmRedeem = confirm(`Do you want to redeem ${itemName}?`);
+    if (!confirmRedeem) {
+        return;
+    }
 
-    const result = await response.json();
+    try {
+        const response = await fetch('/redeem-item', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item: itemName })
+        });
 
-    if (result.success) {
-        alert(result.message);
-        document.getElementById("user-points").textContent = result.remaining_points;
-    } else {
-        alert(result.message);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            // ✅ Show success message
+            alert(result.message);
+
+            // ✅ Ensure points update instantly
+            const pointsElement = document.getElementById("total-points");
+            if (pointsElement) {
+                pointsElement.textContent = result.remaining_points;
+            }
+
+            // ✅ Reload the page after 1 second to reflect changes
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+
+        } else {
+            // ❌ Show error message if redemption fails
+            alert(`❌ ${result.message || "An error occurred while redeeming the item."}`);
+        }
+    } catch (error) {
+        console.error("❌ Network or server error:", error);
+        alert("❌ A network error occurred. Please check your internet connection and try again.");
     }
 }
+
+
+
 
 async function addStudent() {
     let username = document.getElementById('new-username').value;
